@@ -1,4 +1,4 @@
-"""Floating window — the main always-on-top UI widget."""
+"""Floating window — the main UI widget."""
 from __future__ import annotations
 
 from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
@@ -39,11 +39,14 @@ class FloatingWindow(QWidget):
         self._stack = QStackedWidget()
         self._drag_pos = None
         self._active_source: str | None = None
+        self._collapsed = False
+        self._expanded_height = 260
+        self._title_bar: _TitleBar
 
         self._build_ui()
         self._apply_window_flags()
         self.setMinimumWidth(360)
-        self.resize(400, 260)
+        self.resize(400, self._expanded_height)
 
     # ------------------------------------------------------------------
     # Slots wired from signals
@@ -78,7 +81,25 @@ class FloatingWindow(QWidget):
 
     @pyqtSlot()
     def on_spotify_no_device(self) -> None:
-        pass  # Spotify not implemented yet
+        pass
+
+    # ------------------------------------------------------------------
+    # Collapse
+    # ------------------------------------------------------------------
+
+    def toggle_collapse(self) -> None:
+        if self._collapsed:
+            self._stack.show()
+            self.setMinimumHeight(0)
+            self.setMaximumHeight(16777215)
+            self.resize(self.width(), self._expanded_height)
+            self._collapsed = False
+        else:
+            self._expanded_height = self.height()
+            self._stack.hide()
+            self.setFixedHeight(self._title_bar.height())
+            self._collapsed = True
+        self._title_bar.update_collapse_button(self._collapsed)
 
     # ------------------------------------------------------------------
     # Internal
@@ -89,7 +110,8 @@ class FloatingWindow(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        root.addWidget(_TitleBar(self))
+        self._title_bar = _TitleBar(self)
+        root.addWidget(self._title_bar)
 
         # Player page
         player_page = QWidget()
@@ -116,7 +138,6 @@ class FloatingWindow(QWidget):
     def _apply_window_flags(self) -> None:
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint
-            | Qt.WindowType.WindowStaysOnTopHint
             | Qt.WindowType.Tool
         )
 
@@ -138,12 +159,13 @@ class FloatingWindow(QWidget):
 
 
 class _TitleBar(QWidget):
-    """Drag handle + close button for the frameless window."""
+    """Drag handle + collapse + close buttons for the frameless window."""
 
-    def __init__(self, window: QWidget):
+    def __init__(self, window: FloatingWindow):
         super().__init__(window)
         self._window = window
         self._drag_pos = None
+        self._collapse_btn = QPushButton('−')
         self.setFixedHeight(28)
         self._build_ui()
 
@@ -152,6 +174,11 @@ class _TitleBar(QWidget):
         layout.setContentsMargins(8, 0, 4, 0)
 
         lbl = QLabel('MusicSwitch')
+
+        self._collapse_btn.setFixedSize(22, 22)
+        self._collapse_btn.setFlat(True)
+        self._collapse_btn.clicked.connect(self._window.toggle_collapse)
+
         close_btn = QPushButton('×')
         close_btn.setFixedSize(22, 22)
         close_btn.setFlat(True)
@@ -159,7 +186,11 @@ class _TitleBar(QWidget):
 
         layout.addWidget(lbl)
         layout.addStretch()
+        layout.addWidget(self._collapse_btn)
         layout.addWidget(close_btn)
+
+    def update_collapse_button(self, collapsed: bool) -> None:
+        self._collapse_btn.setText('+' if collapsed else '−')
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.MouseButton.LeftButton:
