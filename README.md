@@ -64,12 +64,18 @@ python main.py
 
 ## Setup — Windows
 
-**1. Install Python**
+**1. Install the Visual C++ Redistributable**
+
+Qt6 requires the Microsoft Visual C++ runtime. If you don't have it installed you'll get a `Qt6WebEngineCore.dll was not found` error.
+
+Download and run: [vc_redist.x64.exe](https://aka.ms/vs/17/release/vc_redist.x64.exe)
+
+**2. Install Python**
 
 Download and run the installer from [python.org/downloads](https://www.python.org/downloads/).
 On the first screen, check **"Add Python to PATH"** before clicking Install.
 
-**2. Install dependencies**
+**3. Install dependencies**
 
 Open the MusicSwitch folder in File Explorer.
 Click the address bar at the top, type `cmd`, and press Enter — this opens a Command Prompt inside the folder.
@@ -80,14 +86,14 @@ In the Command Prompt, run:
 pip install -r requirements.txt
 ```
 
-**3. Create a Spotify app**
+**4. Create a Spotify app**
 
 1. Go to [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard)
 2. Create a new app
 3. In the app settings, add `http://127.0.0.1:8888/callback` as a Redirect URI
 4. Copy your Client ID
 
-**4. Configure the environment**
+**5. Configure the environment**
 
 In File Explorer, right-click `.env.example` → **Copy**, then right-click in an empty area → **Paste**.
 Rename the copy from `.env.example - Copy` to `.env`.
@@ -97,12 +103,12 @@ Rename the copy from `.env.example - Copy` to `.env`.
 
 Open `.env` with Notepad, replace `your_client_id_here` with your actual Client ID, and save.
 
-**5. Prepare your playlists**
+**6. Prepare your playlists**
 
 - Open YouTube Music (in your browser) and queue a playlist — leave it paused
 - Open Spotify and queue a playlist — leave it paused
 
-**6. Run**
+**7. Run**
 
 Open the MusicSwitch folder in File Explorer, click the address bar, type `cmd`, press Enter, then run:
 
