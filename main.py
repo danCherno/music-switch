@@ -1,6 +1,13 @@
 """MusicSwitch — entry point."""
 from __future__ import annotations
+import os
 import sys
+
+# Must be set before any Qt imports — fixes GPU DLL failures and blank
+# WebEngine pages on Windows where the sandbox/GPU process can't start.
+if sys.platform == 'win32':
+    os.environ.setdefault('QTWEBENGINE_CHROMIUM_FLAGS', '--disable-gpu')
+    os.environ.setdefault('QTWEBENGINE_DISABLE_SANDBOX', '1')
 
 from dotenv import load_dotenv
 from PyQt6.QtWidgets import QApplication
